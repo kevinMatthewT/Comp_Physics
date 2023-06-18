@@ -24,11 +24,12 @@ for i in range(60):
 # in kg/m3
 Concrete_Density=2400
 
+Road_2d_weight=Concrete_Density*50*Screen_Width*5
+Total_Weight=0
+Bridge_Weight=''
+
 #useless stuff
-Ignore=pygame.image.load("EasterEgg.jpg")
-Ignore=pygame.transform.scale(Ignore,(1200,650))
-boom=pygame.mixer.Sound('SFX1.mp3')
-playAmount=0
+
 boom=pygame.image.load("bigboom.png")
 boom=pygame.transform.scale(boom,(200,66))
 
@@ -47,8 +48,7 @@ CarBox2=pygame.Rect(carX+30,450,30,50)
 CarBox3=pygame.Rect(carX+60,450,30,50)
 CarBox4=pygame.Rect(carX+90,450,30,50)
 CarBox5=pygame.Rect(carX+120,450,30,50)
-#kilograms
-weight_Car=1111
+
 ColorStressHeavy=(255,0,0)
 colorStressLight=(0,0,255)
 
@@ -74,10 +74,13 @@ def build(amount,thickness):
 #asking user input
 Beams=''
 widthBridge=''
+Object_Mass=''
 
+objectInfo='Mass of object'
 infoAmt='Amount of beams'
 infoWidth='Thickness of beams'
 
+input_object=pygame.Rect(0,40,90,32)
 input_bridge=pygame.Rect(200,40,30,32)
 input_width_bridge=pygame.Rect(370,40,60,32)
 
@@ -88,12 +91,16 @@ colorBridgeBox=color_passive
 
 Bridge_Input_Active=False
 Bridge_Width_Active=False
+Object_Mass_Active=False
 
 
 
 #bridge details
 amount=0
 width_Bridge_Int=0
+actual_bridge_size=0
+
+object_Mass_Int=0
 
 run=True
 #running the screen
@@ -146,7 +153,18 @@ while run:
 
                 else:
                     widthBridge+=event.unicode
-                    width_Bridge_Int=int(widthBridge)
+                    width_Bridge_Int=float(widthBridge)*30
+                    actual_bridge_size=float(widthBridge)
+
+        #object mass
+        if event.type==pygame.KEYDOWN:
+            if Object_Mass_Active==True:
+                if event.key==pygame.K_BACKSPACE:
+                    Object_Mass=Object_Mass[0:-1]
+
+                else:
+                    Object_Mass+=event.unicode
+                    object_Mass_Int=float(Object_Mass)
                     
         
 
@@ -159,11 +177,7 @@ while run:
 
         if event.key==pygame.K_LEFT:
             carXChange=-5
-        if event.key==pygame.K_UP:
-            screen.blit(Ignore,(0,0))
-            if playAmount==0:
-                playAmount+=1
-                boom.play()
+
     
     if event.type==pygame.KEYUP:
         carXChange=0  
@@ -182,7 +196,20 @@ while run:
         else:
             Bridge_Width_Active=False
 
-    
+        if input_object.collidepoint(event.pos):
+            Object_Mass_Active=True
+        else:
+            Object_Mass_Active=False
+
+
+    #enter object weigth
+    text_info_object=base_font.render(objectInfo,True,(0,0,0))
+    screen.blit(text_info_object,(0,0))
+    pygame.draw.rect(screen,colorBridgeBox,input_object)
+    text_object=base_font.render(Object_Mass+'kg',True,(255,255,255))
+    screen.blit(text_object,(0,40))
+
+
     #enter bridge amount
     text_info_amount=base_font.render(infoAmt,True,(0,0,0))
     screen.blit(text_info_amount,(170,0))
@@ -190,23 +217,33 @@ while run:
     text_amount=base_font.render(Beams,True,(255,255,255))
     screen.blit(text_amount,(200,40))
 
+
     #enter bridge width
     text_info_width=base_font.render(infoWidth,True,(0,0,0))
     screen.blit(text_info_width,(370,0))
     pygame.draw.rect(screen,colorBridgeBox,input_width_bridge)
-    text_width=base_font.render(widthBridge,True,(255,255,255))
+    text_width=base_font.render(widthBridge+'m',True,(255,255,255))
     screen.blit(text_width,(370,40))
     
-
+    #total bridge mass
+    
 
     
     for ConcreteSupport in Concrete_Beam:
         pygame.draw.rect(screen,col,ConcreteSupport)
     if Beams=='':
         Concrete_Beam=[]
-    
+        Total_Weight=Road_2d_weight
+        Bridge_Weight=str(Total_Weight)
+    else:
+        Total_Weight=Road_2d_weight+(3.3*actual_bridge_size*amount*5*Concrete_Density) #5 is width of bridge
+        Bridge_Weight=str(Total_Weight)
+
+
     build(amount,width_Bridge_Int)
-        
+    
+    Text_bridge_mass=base_font.render("Bridge weight:"+Bridge_Weight+"kg",True,(0,0,0))
+    screen.blit(Text_bridge_mass,(700,0))
 
     #follows the car of the stress where it is
     carX+=carXChange
