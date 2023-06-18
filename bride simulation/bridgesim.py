@@ -72,20 +72,29 @@ def build(amount,thickness):
 
 
 #asking user input
-user_text=''
+Beams=''
+widthBridge=''
 
-input_bridge=pygame.Rect(0,0,140,32)
+infoAmt='Amount of beams'
+infoWidth='Thickness of beams'
+
+input_bridge=pygame.Rect(200,40,30,32)
+input_width_bridge=pygame.Rect(370,40,60,32)
+
 color_active=pygame.Color('lightskyblue3')
 color_passive=pygame.Color('gray15')
 
 colorBridgeBox=color_passive
 
-active=False
+Bridge_Input_Active=False
+Bridge_Width_Active=False
 
 
 
-
+#bridge details
 amount=0
+width_Bridge_Int=0
+
 run=True
 #running the screen
 while run:
@@ -121,13 +130,23 @@ while run:
 
         #choose bridge amount
         if event.type==pygame.KEYDOWN:
-            if active==True:
+            if Bridge_Input_Active==True:
                 if event.key==pygame.K_BACKSPACE:
-                    user_text=user_text[0:-1]
+                    Beams=Beams[0:-1]
 
                 else:
-                    user_text+=event.unicode
-                    amount=int(user_text)
+                    Beams+=event.unicode
+                    amount=int(Beams)
+        
+        #choose bridge thickness
+        if event.type==pygame.KEYDOWN:
+            if Bridge_Width_Active==True:
+                if event.key==pygame.K_BACKSPACE:
+                    widthBridge=widthBridge[0:-1]
+
+                else:
+                    widthBridge+=event.unicode
+                    width_Bridge_Int=int(widthBridge)
                     
         
 
@@ -150,24 +169,45 @@ while run:
         carXChange=0  
         playAmount=0 
 
+
+    #select box input
     if event.type==pygame.MOUSEBUTTONDOWN:
         if input_bridge.collidepoint(event.pos):
-            active=True
+            Bridge_Input_Active=True
         else:
-            active=False
+            Bridge_Input_Active=False
+        
+        if input_width_bridge.collidepoint(event.pos):
+            Bridge_Width_Active=True
+        else:
+            Bridge_Width_Active=False
 
     
     #enter bridge amount
+    text_info_amount=base_font.render(infoAmt,True,(0,0,0))
+    screen.blit(text_info_amount,(170,0))
     pygame.draw.rect(screen,colorBridgeBox,input_bridge)
-    text_surface=base_font.render(user_text,True,(255,255,255))
-    screen.blit(text_surface,(0,0))
+    text_amount=base_font.render(Beams,True,(255,255,255))
+    screen.blit(text_amount,(200,40))
+
+    #enter bridge width
+    text_info_width=base_font.render(infoWidth,True,(0,0,0))
+    screen.blit(text_info_width,(370,0))
+    pygame.draw.rect(screen,colorBridgeBox,input_width_bridge)
+    text_width=base_font.render(widthBridge,True,(255,255,255))
+    screen.blit(text_width,(370,40))
     
-    build(amount,80)
+
+
+    
     for ConcreteSupport in Concrete_Beam:
         pygame.draw.rect(screen,col,ConcreteSupport)
-    if user_text=='':
+    if Beams=='':
         Concrete_Beam=[]
     
+    build(amount,width_Bridge_Int)
+        
+
     #follows the car of the stress where it is
     carX+=carXChange
     CarBox1=pygame.Rect(carX,450,30,50)
@@ -178,5 +218,6 @@ while run:
 
     
     pygame.display.flip()
+    pygame.display.update()
 
         
