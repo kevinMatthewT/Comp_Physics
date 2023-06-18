@@ -59,16 +59,21 @@ def beams(support):
 
 #code to make the beams for it depending on the user
 Concrete_Beam=[]
+Beam_distance=[]
 def build(amount,thickness):
-    distance=beams(support=amount)
-    x=thickness/2
+    if len(Concrete_Beam)==amount:
+        pass
+    else:
+        distance=beams(support=amount)
+        x=thickness/2
 
-    distance_Start=distance
-    for i in range(amount):
-        Concrete=pygame.Rect(distance_Start-x,450,thickness,200)
-        distance_Start+=distance
-        Concrete_Beam.append(Concrete)
-    return Concrete_Beam
+        distance_Start=distance
+        for i in range(amount):
+            Concrete=pygame.Rect(distance_Start-x,450,thickness,200)
+            Beam_distance.append(distance_Start)
+            distance_Start+=distance
+            Concrete_Beam.append(Concrete)
+        return Concrete_Beam,Beam_distance
 
 
 #asking user input
@@ -102,8 +107,18 @@ actual_bridge_size=0
 
 object_Mass_Int=0
 weight_object=0
+moment=0
+force=0
+area=0
+pressure=0
 
 display_force=''
+display_moment=''
+display_pressure=''
+
+activity=False
+beam_dist=0
+totalbeams=0
 
 run=True
 #running the screen
@@ -265,6 +280,42 @@ while run:
 
     Text_Force_Object=base_font.render("Object Weight:"+display_force+"N",True,(0,0,0))
     screen.blit(Text_Force_Object,(700,40))
+
+    
+    
+    if activity==False:
+        for obstacles in Beam_distance:
+            if carX<=obstacles:
+                totalbeams+=1
+        activity=True
+    
+    if amount!=0 and actual_bridge_size!=0:
+        currentBeam=len(Beam_distance)-totalbeams
+        
+        dist=carX-Beam_distance[currentBeam-1]
+        moment=dist*weight_object
+        if moment<0:
+            moment=moment*-1
+            moment=int(moment)
+            force=moment/1000
+        display_moment=str(moment)
+        
+
+    Text_moment_Object=base_font.render("Moment to pillar:"+display_moment+"Nm",True,(0,0,0))
+    screen.blit(Text_moment_Object,(700,80))
+
+    #compression
+    area=5*actual_bridge_size
+    if area!=0:
+        pressure=force/area
+        display_pressure=str(pressure)
+    #compressive strength of concrete is 2200 psi or
+    if pressure>15168:
+        color_pressure=(255,0,0)
+    else:
+        color_pressure=(0,0,0)
+    Text_pressure_Object=base_font.render("Compression:"+display_pressure+"Pa",True,color_pressure)
+    screen.blit(Text_pressure_Object,(700,120))
 
     #follows the car of the stress where it is
     carX+=carXChange
