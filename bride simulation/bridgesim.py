@@ -1,5 +1,6 @@
 import pygame
 from pygame import mixer
+import random
 #import pygame_gui
 
 #making pygame
@@ -34,6 +35,47 @@ boom=pygame.image.load("bigboom.png")
 boom=pygame.transform.scale(boom,(200,66))
 
 carTemp=pygame.image.load("car.png")
+
+#create attribute
+rect_1 = pygame.Rect(15, 390, 50, 50)
+
+#obstacle
+# obstacles = []
+# for _ in range(16):
+obstacle_rect = pygame.Rect(20, 400, 50, 50)
+    # obstacles.append(obstacle_rect)
+
+#define colours
+BG = (50, 50, 50)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+#hide mouse cursor
+pygame.mouse.set_visible(False)
+
+run = True
+while run:
+
+    #update background
+    screen.fill(BG)
+
+    #set colour
+    col = GREEN
+    # for obstacle in obstacles:
+    if rect_1.colliderect(obstacle_rect):
+        col = RED
+
+    #get mouse coordiantes and use them to position the rectangle
+    pos = pygame.mouse.get_pos()
+    rect_1.center = pos
+
+    #draw all rectangles
+    pygame.draw.rect(screen, col, rect_1)
+    # for obstacle in obstacles:
+    pygame.draw.rect(screen, BLUE, obstacle_rect)
+
+
 #150 pixels=5meters, 30pixels=1meter
 car=pygame.transform.scale(carTemp,(150,66))
 CarState="Right"
@@ -117,9 +159,9 @@ while run:
     coleg=(0,0,0)
     for ConcreteFloor in Concrete_Bridge:
         pygame.draw.rect(screen,col,ConcreteFloor)
-    
-    
-    
+
+
+
     #building the template for the stress color in the main road
     pygame.draw.rect(screen,(0,0,255),CarBox1)
     pygame.draw.rect(screen,(128,0, 128),CarBox2)
@@ -128,7 +170,7 @@ while run:
     pygame.draw.rect(screen,(0,0, 255),CarBox5)
 
     screen.blit(car,(carX,carY))
-    
+
 
     for event in pygame.event.get():
         #quit game
@@ -144,7 +186,7 @@ while run:
                 else:
                     Beams+=event.unicode
                     amount=int(Beams)
-        
+
         #choose bridge thickness
         if event.type==pygame.KEYDOWN:
             if Bridge_Width_Active==True:
@@ -165,8 +207,8 @@ while run:
                 else:
                     Object_Mass+=event.unicode
                     object_Mass_Int=float(Object_Mass)
-                    
-        
+
+
 
     if event.type==pygame.KEYDOWN:
         if event.key==pygame.K_RIGHT:
@@ -178,10 +220,10 @@ while run:
         if event.key==pygame.K_LEFT:
             carXChange=-5
 
-    
+
     if event.type==pygame.KEYUP:
-        carXChange=0  
-        playAmount=0 
+        carXChange=0
+        playAmount=0
 
 
     #select box input
@@ -190,7 +232,7 @@ while run:
             Bridge_Input_Active=True
         else:
             Bridge_Input_Active=False
-        
+
         if input_width_bridge.collidepoint(event.pos):
             Bridge_Width_Active=True
         else:
@@ -224,11 +266,11 @@ while run:
     pygame.draw.rect(screen,colorBridgeBox,input_width_bridge)
     text_width=base_font.render(widthBridge+'m',True,(255,255,255))
     screen.blit(text_width,(370,40))
-    
-    #total bridge mass
-    
 
-    
+    #total bridge mass
+
+
+
     for ConcreteSupport in Concrete_Beam:
         pygame.draw.rect(screen,col,ConcreteSupport)
     if Beams=='':
@@ -241,7 +283,7 @@ while run:
 
 
     build(amount,width_Bridge_Int)
-    
+
     Text_bridge_mass=base_font.render("Bridge weight:"+Bridge_Weight+"kg",True,(0,0,0))
     screen.blit(Text_bridge_mass,(700,0))
 
@@ -253,8 +295,10 @@ while run:
     CarBox4=pygame.Rect(carX+90,450,30,50)
     CarBox5=pygame.Rect(carX+120,450,30,50)
 
-    
+
     pygame.display.flip()
     pygame.display.update()
 
-        
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
