@@ -1,6 +1,6 @@
 import pygame
 from pygame import mixer
-import pygame_gui
+#import pygame_gui
 
 #making pygame
 pygame.init()
@@ -12,6 +12,7 @@ Screen_Width=1200
 Screen_Height=600
 screen = pygame.display.set_mode((Screen_Width,Screen_Height))
 
+base_font=pygame.font.Font(None,32)
 
 #concrete bridge
 Concrete_Bridge=[]
@@ -70,11 +71,21 @@ def build(amount,thickness):
     return Concrete_Beam
 
 
+#asking user input
+user_text=''
+
+input_bridge=pygame.Rect(0,0,140,32)
+color_active=pygame.Color('lightskyblue3')
+color_passive=pygame.Color('gray15')
+
+colorBridgeBox=color_passive
+
+active=False
 
 
 
 
-
+amount=0
 run=True
 #running the screen
 while run:
@@ -91,9 +102,7 @@ while run:
     for ConcreteFloor in Concrete_Bridge:
         pygame.draw.rect(screen,col,ConcreteFloor)
     
-    build(8,80)
-    for ConcreteSupport in Concrete_Beam:
-        pygame.draw.rect(screen,col,ConcreteSupport)
+    
     
     #building the template for the stress color in the main road
     pygame.draw.rect(screen,(0,0,255),CarBox1)
@@ -110,6 +119,18 @@ while run:
         if event.type ==pygame.QUIT:
             run=False
 
+        #choose bridge amount
+        if event.type==pygame.KEYDOWN:
+            if active==True:
+                if event.key==pygame.K_BACKSPACE:
+                    user_text=user_text[0:-1]
+
+                else:
+                    user_text+=event.unicode
+                    amount=int(user_text)
+                    
+        
+
     if event.type==pygame.KEYDOWN:
         if event.key==pygame.K_RIGHT:
             carXChange=5
@@ -125,10 +146,27 @@ while run:
                 playAmount+=1
                 boom.play()
     
-    
     if event.type==pygame.KEYUP:
         carXChange=0  
         playAmount=0 
+
+    if event.type==pygame.MOUSEBUTTONDOWN:
+        if input_bridge.collidepoint(event.pos):
+            active=True
+        else:
+            active=False
+
+    
+    #enter bridge amount
+    pygame.draw.rect(screen,colorBridgeBox,input_bridge)
+    text_surface=base_font.render(user_text,True,(255,255,255))
+    screen.blit(text_surface,(0,0))
+    
+    build(amount,80)
+    for ConcreteSupport in Concrete_Beam:
+        pygame.draw.rect(screen,col,ConcreteSupport)
+    if user_text=='':
+        Concrete_Beam=[]
     
     #follows the car of the stress where it is
     carX+=carXChange
