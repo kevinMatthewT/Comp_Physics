@@ -40,14 +40,8 @@ CarState="Right"
 carX=0
 carY=384
 carXChange=0
+Hitbox=pygame.Rect(carX,570,150,40)
 
-#the stress within the bridge, not good yet
-
-# CarBox1=pygame.Rect(carX,450,30,50)
-# CarBox2=pygame.Rect(carX+30,450,30,50)
-# CarBox3=pygame.Rect(carX+60,450,30,50)
-# CarBox4=pygame.Rect(carX+90,450,30,50)
-# CarBox5=pygame.Rect(carX+120,450,30,50)
 
 ColorStressHeavy=(255,0,0)
 colorStressLight=(0,0,255)
@@ -133,32 +127,20 @@ while run:
     #Concrete.center=pos
     col=(128,128,128)
     coleg=(0,0,0)
-    for ConcreteFloor in Concrete_Bridge:
-        pygame.draw.rect(screen,col,ConcreteFloor)
     
-    
-    
-    #building the template for the stress color in the main road
-    # pygame.draw.rect(screen,(0,0,255),CarBox1)
-    # pygame.draw.rect(screen,(128,0, 128),CarBox2)
-    # pygame.draw.rect(screen,(255,0, 0),CarBox3)
-    # pygame.draw.rect(screen,(128,0, 128),CarBox4)
-    # pygame.draw.rect(screen,(0,0, 255),CarBox5)
-    #set colour
-    col = GREEN
-    # for obstacle in obstacles:
-    if rect_1.colliderect(obstacle_rect):
-        col = RED
-
-    #get mouse coordiantes and use them to position the rectangle
-    pos = pygame.mouse.get_pos()
-    rect_1.center = pos
-
-    #draw all rectangles
-    pygame.draw.rect(screen, col, rect_1)
-    # for obstacle in obstacles:
-    pygame.draw.rect(screen, BLUE, obstacle_rect)
     screen.blit(car,(carX,carY))
+    Hitbox.center=(carX+70,480)
+    pygame.draw.rect(screen,col,Hitbox)
+    for ConcreteFloor in Concrete_Bridge:
+        if ConcreteFloor.colliderect(Hitbox):
+            if pressure>15168:
+                pygame.draw.rect(screen,(255,0,0),ConcreteFloor)
+            elif pressure<10000 and pressure>8000:
+                pygame.draw.rect(screen,(0,0,255),ConcreteFloor)
+            else:
+                pygame.draw.rect(screen,(0,255,0),ConcreteFloor)
+        else:    
+            pygame.draw.rect(screen,col,ConcreteFloor)
     
 
     for event in pygame.event.get():
@@ -206,6 +188,7 @@ while run:
             carXChange=5
             if carX>=1050:
                 screen.blit(boom,(carX,carY))
+                pygame.draw.rect(screen,col,Hitbox)
                 run=False
 
         if event.key==pygame.K_LEFT:
@@ -263,11 +246,22 @@ while run:
 
     
     for ConcreteSupport in Concrete_Beam:
-        pygame.draw.rect(screen,col,ConcreteSupport)
+        if ConcreteSupport.colliderect(Hitbox):
+            if pressure>15168:
+                pygame.draw.rect(screen,(255,0,0),ConcreteSupport)
+            elif pressure<10000 and pressure>8000:
+                pygame.draw.rect(screen,(0,0,255),ConcreteSupport)
+            else:
+                pygame.draw.rect(screen,(0,255,0),ConcreteSupport)
+        else:    
+            pygame.draw.rect(screen,col,ConcreteSupport)
     if Beams=='':
         Concrete_Beam=[]
+        totalbeams=0
+        Beam_distance=[]
         Total_Weight=Road_2d_weight
         Bridge_Weight=str(Total_Weight)
+        activity=False
     else:
         Total_Weight=Road_2d_weight+(3.3*actual_bridge_size*amount*5*Concrete_Density) #5 is width of bridge
         Bridge_Weight=str(Total_Weight)
@@ -317,13 +311,12 @@ while run:
     Text_pressure_Object=base_font.render("Compression:"+display_pressure+"Pa",True,color_pressure)
     screen.blit(Text_pressure_Object,(700,120))
 
+
+        
+
     #follows the car of the stress where it is
     carX+=carXChange
-    # CarBox1=pygame.Rect(carX,450,30,50)
-    # CarBox2=pygame.Rect(carX+30,450,30,50)
-    # CarBox3=pygame.Rect(carX+60,450,30,50)
-    # CarBox4=pygame.Rect(carX+90,450,30,50)
-    # CarBox5=pygame.Rect(carX+120,450,30,50)
+    
 
     
     pygame.display.flip()
